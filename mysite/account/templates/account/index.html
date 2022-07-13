@@ -1,0 +1,77 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+
+  <!-- Your custom CSS style -->
+  <!-- <link rel="stylesheet" href="{% static "portfolio/custom.css" %}"> -->
+
+  <link href="https://fonts.googleapis.com/css?family=Lato&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png"  href="{% static 'account/homepage.png' %}">
+  <title>Bank-App</title>
+</head>
+
+<body>
+  <nav style="background-color: #213e5f" id="topNav" class="navbar navbar-expand-md navbar-heavy">
+    <div class="container">
+        <a>
+            <img src="{% static 'account/homepage.png' %}" style="max-width: 50px; margin-right: 16px;">
+        </a>
+      <a class="navbar-brand" href="{% url 'index' %}">
+        <span style="color: #ffffff">Bank-App</span>
+      </a>
+        <div class="collapse navbar-collapse text-center" id="navbarNav" style="vertical-align: middle;">
+      </div>
+    </div>
+  </nav>
+  <div class="container">
+    {% block content %}
+    <section id="welcome_post" class="col-9">
+        <h2>Welcome, <span id="prof_name">{{ user }}.</span> </h2>
+        <h4 style="font-weight: 300;">It's good to have you here.</h4>   
+        <br>
+        
+        <div class="text-center curr_bal"> 
+            <h4>ACCOUNT NUMBER</h4> 
+            <h1 id="curr_bal" class="btn-success">{{ curr_user.account_number }}</h1>
+        </div>
+        <br>
+        <div class="text-center curr_bal"> 
+            <h4>CURRENT BALACE IN YOUR ACCOUNT</h4> 
+            <h1 id="curr_bal" class="btn-danger">€{{ curr_user.balance }}</h1> 
+        </div>
+        <br>
+        <div class="text-center curr_bal"> 
+            <h4>ACCOUNT TYPE</h4> 
+            <h1 id="curr_bal" class="btn-info">SAVINGS</h1>
+        </div>
+    </section>
+    
+    <div class="container-fluid row">
+            
+        <!--SIDE PANEL BEGINS -->
+        <section id="side_panel" class="col-3 bg-dark">
+            <!-- OPERATIONS -->
+            
+            <a href="{% url 'deposit' %}" class="side" id="transfer">Deposit</a> <br> <br>
+            <a href="{% url 'withdrawal' %}" class="side" id="transfer">Withdrawal</a> <br> <br>
+            <a href="{% url 'transfer' %}" class="side" id="transfer">Transfer</a> <br> <br>
+            <a href="{% url 'logoutuser' %}" class="side" id="transfer">Logout</a> <br> <br>
+                          
+        </section>
+    {% endblock %}
+  </div>
+
+  <!-- Optional JavaScript -->
+  <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+  <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+</body>

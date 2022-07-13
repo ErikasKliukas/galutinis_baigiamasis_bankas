@@ -1,4 +1,6 @@
 {% extends "account/base.html" %}
+{% load crispy_forms_tags %}
+
 
 {% block content %}
 <section id="welcome_post" class="col-9">
@@ -15,12 +17,12 @@
         <h4>CURRENT BALACE IN YOUR ACCOUNT</h4> 
         <h1 id="curr_bal" class="btn-danger">€{{ curr_user.balance }}</h1> 
     </div>
-    <br>
-    <div class="text-center curr_bal"> 
-        <h4>ACCOUNT TYPE</h4> 
-        <h1 id="curr_bal" class="btn-info">SAVINGS</h1>
-    </div>
-    
 </section>
-
-{% endblock %}
+<h2>{{ title }}</h2><hr>
+<form method="POST" action="" >
+    {% csrf_token %}
+    {{ form|crispy }}
+    <br>
+    <input class="btn btn-primary" type="submit" value='{{ title }}'>
+</form>
+{% endblock content %}

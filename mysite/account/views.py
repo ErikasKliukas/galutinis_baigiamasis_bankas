@@ -5,6 +5,9 @@ from django.contrib.auth.models import User
 from django.db import IntegrityError
 import random
 from . models import *
+from . forms import *
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 
 def home(request):
     return render(request, 'account/base.html')
@@ -18,7 +21,7 @@ def signup(request):
                 user = User.objects.create_user(request.POST['username'], password=request.POST['password1'])
                 user.save()
                 login(request, user)
-                return redirect('currentusser')
+                return redirect('index')
             except IntegrityError:
                 return render(request, 'account/signup.html', {'form':UserCreationForm(), 'error':'That username has already been taken. Please choose a new username'})
         else:
@@ -33,7 +36,14 @@ def loginuser(request):
             return render(request, 'account/login.html', {'form':AuthenticationForm(), 'error':'Username and password did not match'})
         else:
             login(request, user)
-            return redirect('currentusser')
+            return redirect('index')
+
+@login_required
+def logoutuser(request):
+    if request.method == 'POST':
+        logout(request)
+        return redirect('home')
+
 
 def randomGen():
     # return a 6 digit random number
@@ -41,13 +51,91 @@ def randomGen():
 
 def index(request):
     try:
-        curr_user = Status.objects.get(user_name=request.user) # getting details of current user
+        status = Account.objects.get(user=request.user) # getting details of current user
     except:
         # if no details exist (new user), create new details
-        curr_user = Status()
-        curr_user.account_number = randomGen() # random account number for every new user
-        curr_user.balance = 0
-        curr_user.user_name = request.user
-        curr_user.save()
-    return render(request, "account/currentusser.html", {"curr_user": curr_user})
- 
+        status = Account()
+        status.account_number = randomGen() # random account number for every new user
+        status.balance = 0
+        status.user = request.user
+        status.save()
+    return render(request, "account/index.html", {"curr_user": status})
+
+
+@login_required
+def deposit_view(request):
+    form = DepositForm(request.POST or None)
+    status = Account.objects.get(user=request.user)
+
+    if form.is_valid():
+        deposit = form.save(commit=False)
+        deposit.user = request.user
+        deposit.save()
+        # adds users deposit to balance.
+        status.balance += deposit.amount
+        status.save()
+        messages.success(request, 'You Have Deposited {} $.'
+                         .format(deposit.amount))
+        return redirect("index")
+
+    context = {
+        "title": "Deposit",
+        "form": form,
+        "curr_user": status,
+    }
+    return render(request, "account/form.html", context)
+
+
+@login_required
+def withdrawal_view(request):
+    status = Account.objects.get(user=request.user)
+    form = WithdrawalForm(request.POST or None, user=request.user, status = status)
+
+    if form.is_valid():
+        withdrawal = form.save(commit=False)
+        withdrawal.user = request.user
+        withdrawal.save()
+        # subtracts users withdrawal from balance.
+        status.balance -= withdrawal.amount
+        status.save()
+
+        messages.success(
+            request, 'You Have Withdrawn {} $.'.format(withdrawal.amount)
+        )
+        return redirect("index")
+
+    context = {
+        "title": "Withdraw",
+        "form": form,
+        "curr_user": status,
+    }
+    return render(request, "account/form.html", context)
+
+
+@login_required
+def transfer_view(request):
+    account = Account.objects.get(user=request.user)
+    form = Transfer(request.POST or None, user=request.user, account = account)
+
+    if form.is_valid():
+        transfer = form.save(commit=False)
+        transfer.user = request.user
+        transfer.save()
+
+        transfered_to = Account.objects.get(account_number=transfer.to_account)
+        transfered_to.balance += transfer.amount
+        account.balance -= transfer.amount
+        account.save()
+        transfered_to.save()
+
+        messages.success(
+            request, 'You Have Transfered {} $.'.format(transfer.amount)
+        )
+        return redirect("index")
+
+    context = {
+        "title": "Transfer",
+        "form": form,
+        "curr_user": account,
+    }
+    return render(request, "account/form.html", context)
