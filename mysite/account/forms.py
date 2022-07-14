@@ -35,12 +35,25 @@ class Transfer(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         self.account = kwargs.pop('account', None)
-        super(WithdrawalForm, self).__init__(*args, **kwargs)
+        super(Transfer, self).__init__(*args, **kwargs)
 
     def clean_amount(self):
         amount = self.cleaned_data['amount']
 
         if self.account.balance < amount:
             raise forms.ValidationError(
-                'You can not transfer more than you balance.'
+                'You can not transfer more than your balance.'
             )
+
+        return amount
+        
+
+    def clean_account(self):
+        to_account = self.cleaned_data['to_account']
+
+        if not to_account:
+            raise forms.ValidationError(
+                'You can not transfer more than your balance.'
+            )
+
+        return to_account

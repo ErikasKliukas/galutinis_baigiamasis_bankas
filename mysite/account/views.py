@@ -12,6 +12,7 @@ from django.contrib import messages
 def home(request):
     return render(request, 'account/base.html')
 
+
 def signup(request):
     if request.method == 'GET':
         return render(request, 'account/signup.html', {'form': UserCreationForm()})
@@ -27,6 +28,7 @@ def signup(request):
         else:
             return render(request, 'account/signup.html', {'form':UserCreationForm(), 'error':'Passwords did not match'})
 
+
 def loginuser(request):
     if request.method == 'GET':
         return render(request, 'account/login.html', {'form':AuthenticationForm()})
@@ -38,17 +40,19 @@ def loginuser(request):
             login(request, user)
             return redirect('index')
 
+
 @login_required
 def logoutuser(request):
-    if request.method == 'POST':
-        logout(request)
-        return redirect('home')
+    logout(request)
+    return redirect('home')
 
 
 def randomGen():
     # return a 6 digit random number
     return int(random.uniform(100000, 999999))
 
+
+@login_required
 def index(request):
     try:
         status = Account.objects.get(user=request.user) # getting details of current user
@@ -115,7 +119,7 @@ def withdrawal_view(request):
 @login_required
 def transfer_view(request):
     account = Account.objects.get(user=request.user)
-    form = Transfer(request.POST or None, user=request.user, account = account)
+    form = Transfer(request.POST or None, account = account)
 
     if form.is_valid():
         transfer = form.save(commit=False)
@@ -139,3 +143,37 @@ def transfer_view(request):
         "curr_user": account,
     }
     return render(request, "account/form.html", context)
+
+
+@login_required
+def transactions_list_view(request):
+    transactions = []
+    transfers = models.Transfer.objects.filter(user=request.user).values()
+    deposits = models.Deposit.objects.filter(user=request.user).values()
+    withdrawals = models.Withdrawal.objects.filter(user=request.user).values()
+    for transfer in transfers:
+        transfered_to_acc = Account.objects.get(account_number=transfer['to_account'])
+        user = transfered_to_acc.user
+        data = {
+            'amount': f"Transfered {transfer['amount']} to {str.capitalize(user.username)}",
+            'timestamp': str(transfer['timestamp']).split('.')[0]
+        }
+        transactions.append(data)
+
+    for deposit in deposits:
+        data = {
+            'amount': f"Deposited {deposit['amount']}",
+            'timestamp': str(deposit['timestamp']).split('.')[0]
+        }
+        transactions.append(data)
+        
+    for withdrawal in withdrawals:
+        data = {
+            'amount': f"Withdrawed {withdrawal['amount']}",
+            'timestamp': str(withdrawal['timestamp']).split('.')[0]
+        }
+        transactions.append(data)
+
+    print(transactions)
+
+    return render(request, "account/list.html", {"transactions": transactions})

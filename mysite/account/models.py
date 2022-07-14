@@ -1,5 +1,4 @@
 from django.db import models
-from django.conf import settings
 from decimal import Decimal
 from django.core.validators import MinValueValidator
 from django.contrib.auth.models import User
@@ -52,6 +51,7 @@ class Withdrawal(models.Model):
     def __str__(self):
         return str(self.user)
 
+
 class Transfer(models.Model):
     user = models.ForeignKey(
         User,
@@ -69,4 +69,4 @@ class Transfer(models.Model):
     to_account = models.IntegerField()
     timestamp = models.DateTimeField(auto_now_add=True)
     def __str__(self):
-        return str(self.user + 'to' + str(self.to_account))
+        return str(self.user)
