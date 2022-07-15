@@ -174,6 +174,5 @@ def transactions_list_view(request):
         }
         transactions.append(data)
 
-    print(transactions)
-
     return render(request, "account/list.html", {"transactions": transactions})
+    
