@@ -55,11 +55,10 @@ def randomGen():
 @login_required
 def index(request):
     try:
-        status = Account.objects.get(user=request.user) # getting details of current user
+        status = Account.objects.get(user=request.user) 
     except:
-        # if no details exist (new user), create new details
         status = Account()
-        status.account_number = randomGen() # random account number for every new user
+        status.account_number = randomGen() 
         status.balance = 0
         status.user = request.user
         status.save()
